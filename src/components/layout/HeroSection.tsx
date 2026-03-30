@@ -24,7 +24,7 @@ export function HeroSection() {
           การเงิน & การลงทุน 101
         </h1>
         <p className="mt-2 text-muted-foreground text-base">
-          คู่มือเริ่มต้นสำหรับมือใหม่ที่อยากจัดการเงินและลงทุนอย่างชาญฉลาด
+          คู่มือเริ่มต้นสำหรับมือใหม่ที่อยากจัดการเงินและลงทุน
         </p>
 
         {/* Progress stats */}

@@ -5,19 +5,18 @@ import { ContentDrawer } from "@/components/roadmap/ContentDrawer";
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      {/*
-        This middle section is a scrollable column.
-        HeroSection and Canvas stack vertically inside it.
-        The canvas itself grows to fill the remaining height.
-      */}
-      <div className="flex-1 flex flex-col overflow-auto min-h-0">
+      <main className="flex flex-col">
         <HeroSection />
-        <div className="flex-1 min-h-0">
+        {/*
+          Give the canvas a fixed large height to fit the whole roadmap.
+          This makes the entire page scrollable naturally.
+        */}
+        <div className="w-full h-[1800px]">
           <RoadmapCanvas />
         </div>
-      </div>
+      </main>
       <ContentDrawer />
     </div>
   );

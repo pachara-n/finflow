@@ -3,16 +3,12 @@
 import { useMemo, useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
-  Controls,
-  Background,
   useNodesState,
   useEdgesState,
-  BackgroundVariant,
   ReactFlowProvider,
   useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useTheme } from 'next-themes';
 
 import { useRoadmapStore } from '@/store/useRoadmapStore';
 import { CustomNode } from './CustomNode';
@@ -24,26 +20,33 @@ const nodeTypes = {
   'phase-header': PhaseHeaderNode,
 };
 
-function InitialViewportSetter() {
-  const { fitView } = useReactFlow();
+function InitialViewportSetter({ onReady }: { onReady: () => void }) {
+  const { setViewport } = useReactFlow();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fitView({
-        nodes: [{ id: 'ph-1' }, { id: '1-1' }, { id: '1-2' }, { id: '1-3' }],
-        padding: 0.3,
-        maxZoom: 1,
-        duration: 800,
-      });
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [fitView]);
+    const handleResize = () => {
+      const container = document.querySelector('.react-flow__renderer');
+      if (container) {
+        const width = container.clientWidth;
+        const x = (width - 660) / 2;
+        setViewport({ x, y: 50, zoom: 1 });
+        onReady();
+      }
+    };
+
+    // Run immediately
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [setViewport, onReady]);
 
   return null;
 }
 
-function RoadmapFlow() {
-  const { resolvedTheme } = useTheme();
+function RoadmapFlow({ onReady }: { onReady: () => void }) {
   const storeNodes = useRoadmapStore((state) => state.nodes);
   const storeEdges = useRoadmapStore((state) => state.edges);
   const setSelectedNode = useRoadmapStore((state) => state.setSelectedNode);
@@ -69,46 +72,52 @@ function RoadmapFlow() {
 
   return (
     <ReactFlow
-      colorMode={resolvedTheme === 'dark' ? 'dark' : 'light'}
+      colorMode="dark"
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={onNodeClick}
       nodeTypes={nodeTypes}
-      minZoom={0.3}
-      maxZoom={1.5}
+      minZoom={1}
+      maxZoom={1}
       nodesDraggable={false}
       nodesConnectable={false}
       elementsSelectable={false}
-      className="touch-none"
-      panOnScroll={true}
-      zoomOnPinch={true}
-      panOnDrag={true}
+      zoomOnPinch={false}
+      zoomOnScroll={false}
+      zoomOnDoubleClick={false}
+      panOnDrag={false}
+      panOnScroll={false}
+      preventScrolling={false}
+      className="bg-background"
       proOptions={{ hideAttribution: true }}
     >
-      <Background gap={24} color="#d4d4d8" variant={BackgroundVariant.Dots} />
-      <Controls showInteractive={false} />
-      <InitialViewportSetter />
+      <InitialViewportSetter onReady={onReady} />
     </ReactFlow>
   );
 }
 
 export function RoadmapCanvas() {
   const [mounted, setMounted] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    return <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950" />;
+    return <div className="w-full h-full bg-background" />;
   }
 
   return (
-    <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950">
+    <div 
+      className={`w-full h-full bg-background transition-opacity duration-300 ${
+        isReady ? 'opacity-100' : 'opacity-0'
+      }`}
+    >
       <ReactFlowProvider>
-        <RoadmapFlow />
+        <RoadmapFlow onReady={() => setIsReady(true)} />
       </ReactFlowProvider>
     </div>
   );
