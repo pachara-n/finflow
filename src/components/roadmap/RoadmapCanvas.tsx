@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback, useEffect } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -12,30 +12,30 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { useTheme } from 'next-themes';
 
 import { useRoadmapStore } from '@/store/useRoadmapStore';
 import { CustomNode } from './CustomNode';
+import { PhaseHeaderNode } from './PhaseHeaderNode';
 import type { RoadmapNode } from '@/types/roadmap';
 
 const nodeTypes = {
   custom: CustomNode,
+  'phase-header': PhaseHeaderNode,
 };
 
-// Component to handle smooth initial zooming into the first phase
 function InitialViewportSetter() {
   const { fitView } = useReactFlow();
 
   useEffect(() => {
-    // We focus on the Phase 1 nodes so it feels like starting at the top of a page, not a zoomed-out map.
     const timer = setTimeout(() => {
-      fitView({ 
-        nodes: [{ id: '1-1' }, { id: '1-2' }, { id: '1-3' }], 
-        padding: 0.2, 
-        maxZoom: 1, 
-        duration: 1000 
+      fitView({
+        nodes: [{ id: 'ph-1' }, { id: '1-1' }, { id: '1-2' }, { id: '1-3' }],
+        padding: 0.3,
+        maxZoom: 1,
+        duration: 800,
       });
     }, 100);
-
     return () => clearTimeout(timer);
   }, [fitView]);
 
@@ -43,6 +43,7 @@ function InitialViewportSetter() {
 }
 
 function RoadmapFlow() {
+  const { resolvedTheme } = useTheme();
   const storeNodes = useRoadmapStore((state) => state.nodes);
   const storeEdges = useRoadmapStore((state) => state.edges);
   const setSelectedNode = useRoadmapStore((state) => state.setSelectedNode);
@@ -51,7 +52,6 @@ function RoadmapFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
 
-  // Sync state from zustand to reactflow local state whenever store changes
   useMemo(() => {
     setNodes(storeNodes);
     setEdges(storeEdges);
@@ -59,8 +59,7 @@ function RoadmapFlow() {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: RoadmapNode) => {
-      // Allow clicking if unlocked or completed
-      if (node.data.status !== 'locked') {
+      if (node.type === 'custom') {
         setSelectedNode(node);
         setDrawerOpen(true);
       }
@@ -70,6 +69,7 @@ function RoadmapFlow() {
 
   return (
     <ReactFlow
+      colorMode={resolvedTheme === 'dark' ? 'dark' : 'light'}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -80,22 +80,31 @@ function RoadmapFlow() {
       maxZoom={1.5}
       nodesDraggable={false}
       nodesConnectable={false}
-      elementsSelectable={true}
+      elementsSelectable={false}
       className="touch-none"
       panOnScroll={true}
       zoomOnPinch={true}
       panOnDrag={true}
       proOptions={{ hideAttribution: true }}
     >
-      <Background gap={20} color="#cbd5e1" variant={BackgroundVariant.Dots} />
-      <Controls showInteractive={false} className="dark:bg-zinc-800 dark:border-zinc-700" />
+      <Background gap={24} color="#d4d4d8" variant={BackgroundVariant.Dots} />
+      <Controls showInteractive={false} />
       <InitialViewportSetter />
     </ReactFlow>
   );
 }
 
-// Wrapper necessary to use the ReactFlow hooks inside (like fitView)
 export function RoadmapCanvas() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950" />;
+  }
+
   return (
     <div className="w-full h-full bg-zinc-50 dark:bg-zinc-950">
       <ReactFlowProvider>
