@@ -9,7 +9,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-6">
+      <div className="max-w-5xl mx-auto flex h-14 items-center px-6">
         <div className="flex gap-2.5 items-center">
           <div className="w-8 h-8 bg-zinc-900 dark:bg-zinc-100 rounded-lg flex items-center justify-center">
             <span className="text-white dark:text-zinc-900 font-extrabold text-xs tracking-tighter">FF</span>
