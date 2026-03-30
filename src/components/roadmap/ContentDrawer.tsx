@@ -5,12 +5,9 @@ import { useRoadmapStore } from '@/store/useRoadmapStore';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
 } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { CheckCircle2, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Calculator, Sparkles, X, ChevronDown, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -22,10 +19,11 @@ export function ContentDrawer() {
   const isDrawerOpen = useRoadmapStore((state) => state.isDrawerOpen);
   const selectedNode = useRoadmapStore((state) => state.selectedNode);
   const setDrawerOpen = useRoadmapStore((state) => state.setDrawerOpen);
-  const markNodeAsCompleted = useRoadmapStore((state) => state.markNodeAsCompleted);
+  const setNodeStatus = useRoadmapStore((state) => state.setNodeStatus);
 
   const [markdownContent, setMarkdownContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isDrawerOpen && selectedNode?.data.contentFile) {
@@ -36,70 +34,128 @@ export function ContentDrawer() {
           return res.text();
         })
         .then((text) => setMarkdownContent(text))
-        .catch(() => setMarkdownContent('ขออภัย เนื้อหาไฟล์นี้ไม่พร้อมใช้งาน (File not found or network error)'))
+        .catch(() => setMarkdownContent('# ขออภัย\nเนื้อหาไฟล์นี้ไม่พร้อมใช้งาน (File not found or network error)'))
         .finally(() => setIsLoading(false));
     } else {
       setMarkdownContent('');
+      setIsStatusMenuOpen(false);
     }
   }, [isDrawerOpen, selectedNode]);
 
   if (!selectedNode) return null;
 
-  const handleMarkAsDone = () => {
-    markNodeAsCompleted(selectedNode.id);
-    setDrawerOpen(false);
+  const currentStatus = selectedNode.data.status || 'unlocked';
+  const isCompleted = currentStatus === 'completed';
+
+  const updateStatus = (status: 'unlocked' | 'completed') => {
+    setNodeStatus(selectedNode.id, status);
+    setIsStatusMenuOpen(false);
   };
 
   const interactiveType = selectedNode.data.interactiveType;
 
   return (
     <Sheet open={isDrawerOpen} onOpenChange={setDrawerOpen}>
-      <SheetContent className="w-full sm:max-w-xl overflow-y-auto outline-none">
-        <SheetHeader className="mb-6">
-          <SheetTitle className="text-2xl">{selectedNode.data.label}</SheetTitle>
-          <SheetDescription>
-            {selectedNode.data.status === 'completed'
-              ? 'คุณเรียนรู้เรื่องนี้จบแล้ว ทบทวนได้เสมอ'
-              : 'อ่านเนื้อหานี้เพื่อปลดล็อกขั้นต่อไป'}
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="space-y-6 pb-20">
-          {isLoading ? (
-            <div className="flex h-40 items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <div className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-xl prose-a:text-emerald-600">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {markdownContent}
-              </ReactMarkdown>
-            </div>
-          )}
-
-          {/* Interactive Calculator Rendering */}
-          {!isLoading && interactiveType === 'EmergencyFundCalculator' && (
-            <EmergencyFundCalculator />
-          )}
-          {!isLoading && interactiveType === 'DCASimulator' && (
-            <DCASimulator />
-          )}
-
-          <div className="pt-8">
-            <Button
-              onClick={handleMarkAsDone}
-              className="w-full text-lg h-12 bg-emerald-600 hover:bg-emerald-700 text-white"
-              disabled={selectedNode.data.status === 'completed' || isLoading}
+      <SheetContent className="w-full sm:max-w-3xl overflow-y-auto outline-none border-l border-zinc-800 bg-zinc-950 p-0 sm:rounded-l-2xl shadow-2xl">
+        
+        {/* TOP BAR - Simplified Status Selector Only */}
+        <div className="sticky top-0 z-20 w-full flex items-center justify-end px-6 py-4 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50 gap-3">
+          
+          <div className="relative">
+            <button 
+              onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}
+              className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-lg border transition-all text-xs font-bold leading-none ${
+                isCompleted 
+                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20' 
+                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+              }`}
             >
-              {selectedNode.data.status === 'completed' ? (
-                <>
-                  <CheckCircle2 className="mr-2 h-5 w-5" /> สำเร็จแล้ว
-                </>
-              ) : (
-                'อ่านจบแล้ว (Mark as Done)'
-              )}
-            </Button>
+              <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-yellow-500'}`}></div>
+              <span className="uppercase tracking-wider">{isCompleted ? 'Done' : 'In Progress'}</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isStatusMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isStatusMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in duration-200">
+                <button 
+                  onClick={() => updateStatus('unlocked')}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 transition-colors"
+                >
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  In Progress
+                </button>
+                <button 
+                  onClick={() => updateStatus('completed')}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800/50 hover:text-emerald-500 transition-colors"
+                >
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  Done
+                </button>
+              </div>
+            )}
           </div>
+          
+          <button 
+            onClick={() => setDrawerOpen(false)}
+            className="p-2 hover:bg-zinc-900 rounded-lg text-zinc-600 hover:text-zinc-300 transition-all border border-transparent hover:border-zinc-800"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* CONTENT AREA */}
+        <div className="px-8 sm:px-14 py-10 pb-24">
+          <header className="mb-14">
+            <div className="flex items-center gap-2 mb-4">
+              <Badge variant="outline" className="text-[10px] uppercase font-black tracking-widest bg-zinc-900 text-zinc-500 border-zinc-800 py-0.5 px-2.5 h-auto">
+                Topic Guideline
+              </Badge>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+              {selectedNode.data.label}
+            </h1>
+          </header>
+
+          <main className="space-y-12">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-800" />
+                <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-700">Loading Content</p>
+              </div>
+            ) : (
+              <div className="prose prose-zinc prose-invert max-w-none 
+                prose-headings:text-white prose-headings:font-black prose-headings:tracking-tight
+                prose-h2:text-2xl prose-h2:mt-14 prose-h2:border-b prose-h2:border-zinc-900/50 prose-h2:pb-4
+                prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:text-[16px]
+                prose-li:text-zinc-400 prose-li:text-[16px]
+                prose-strong:text-emerald-400 prose-strong:font-bold
+                prose-blockquote:border-emerald-500/30 prose-blockquote:bg-emerald-500/5 prose-blockquote:rounded-r-xl prose-blockquote:py-1 prose-blockquote:px-6
+                prose-hr:border-zinc-900/50">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {markdownContent}
+                </ReactMarkdown>
+              </div>
+            )}
+
+            {/* INTERACTIVE TOOLS */}
+            {interactiveType && !isLoading && (
+              <div className="mt-16 bg-zinc-900/30 rounded-2xl border border-zinc-900 p-8">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
+                    <Calculator className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white tracking-tight leading-none mb-1">Interactive Tool</h3>
+                    <p className="text-xs text-zinc-500 italic lowercase">Simulator & Calculator</p>
+                  </div>
+                </div>
+                
+                {interactiveType === 'EmergencyFundCalculator' && <EmergencyFundCalculator />}
+                {interactiveType === 'DCASimulator' && <DCASimulator />}
+              </div>
+            )}
+          </main>
         </div>
       </SheetContent>
     </Sheet>

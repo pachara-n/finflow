@@ -56,14 +56,25 @@ export const useRoadmapStore = create<RoadmapState>()(
       setSelectedNode: (node) => set({ selectedNode: node }),
       setDrawerOpen: (isOpen) => set({ isDrawerOpen: isOpen }),
 
-      markNodeAsCompleted: (nodeId) => {
-        set((state) => ({
-          nodes: state.nodes.map((node) =>
+      setNodeStatus: (nodeId, status) => {
+        set((state) => {
+          const newNodes = state.nodes.map((node) =>
             node.id === nodeId
-              ? { ...node, data: { ...node.data, status: 'completed' as const } }
+              ? { ...node, data: { ...node.data, status } }
               : node
-          ),
-        }));
+          );
+          
+          return {
+            nodes: newNodes,
+            selectedNode: state.selectedNode?.id === nodeId 
+              ? { ...state.selectedNode, data: { ...state.selectedNode.data, status } }
+              : state.selectedNode
+          };
+        });
+      },
+
+      markNodeAsCompleted: (nodeId) => {
+        get().setNodeStatus(nodeId, 'completed');
       },
 
       // Only count topic nodes (those with a status field)

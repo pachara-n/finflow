@@ -21,6 +21,7 @@ export interface RoadmapState {
 
   setSelectedNode: (node: RoadmapNode | null) => void;
   setDrawerOpen: (isOpen: boolean) => void;
+  setNodeStatus: (nodeId: string, status: NodeStatus) => void;
   markNodeAsCompleted: (nodeId: string) => void;
   getProgressPercentage: () => number;
   getCompletedCount: () => number;
