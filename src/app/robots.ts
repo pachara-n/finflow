@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://finflow.vercel.app/sitemap.xml',
+    sitemap: 'https://finflow.pachara.app/sitemap.xml',
   };
 }

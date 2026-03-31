@@ -5,6 +5,14 @@ export function Header() {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleAnchorClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    id: string
+  ) => {
+    event.preventDefault();
+    scrollTo(id);
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-zinc-800/50">
       <div className="max-w-5xl mx-auto flex h-14 items-center px-6">
@@ -18,18 +26,20 @@ export function Header() {
 
         {/* Center: Nav Links */}
         <nav className="hidden sm:flex items-center gap-1 ml-8">
-          <button
-            onClick={() => scrollTo('roadmap-section')}
+          <a
+            href="#roadmap-section"
+            onClick={(event) => handleAnchorClick(event, 'roadmap-section')}
             className="px-3 py-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-800/50 transition-all"
           >
             Roadmap
-          </button>
-          <button
-            onClick={() => scrollTo('resources-section')}
+          </a>
+          <a
+            href="#resources-section"
+            onClick={(event) => handleAnchorClick(event, 'resources-section')}
             className="px-3 py-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-800/50 transition-all"
           >
             Resources
-          </button>
+          </a>
         </nav>
 
         {/* Right Side: GitHub */}
