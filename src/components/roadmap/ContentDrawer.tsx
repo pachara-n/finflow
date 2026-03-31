@@ -7,7 +7,7 @@ import {
   SheetContent,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Calculator, Sparkles, X, ChevronDown, Loader2 } from 'lucide-react';
+import { Calculator, X, ChevronDown, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -114,7 +114,12 @@ export function ContentDrawer() {
             
             {/* <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
               {selectedNode.data.label}
-            </h1> */}
+            </h1>
+            {selectedNode.data.description && (
+              <p className="mt-3 text-base text-zinc-500 max-w-2xl leading-relaxed">
+                {selectedNode.data.description}
+              </p>
+            )} */}
           </header>
 
           <main className="space-y-12">

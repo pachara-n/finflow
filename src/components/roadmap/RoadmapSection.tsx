@@ -36,7 +36,7 @@ export function RoadmapSection() {
   }
 
   return (
-    <div id="roadmap-section" className="w-full h-[1300px]">
+    <div id="roadmap-section" className="w-full h-[1620px]">
       <RoadmapCanvas />
     </div>
   );
