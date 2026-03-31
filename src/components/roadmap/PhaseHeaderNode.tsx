@@ -2,12 +2,16 @@ import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { NodeData } from '@/types/roadmap';
+import { useInView } from '@/hooks/useInView';
 
 export const PhaseHeaderNode = memo(({ data }: NodeProps) => {
   const nodeData = data as NodeData;
+  const { ref, isInView } = useInView();
+  
   return (
     <div
-      className="relative flex items-center gap-4 px-6 py-4 rounded-2xl border border-zinc-200 bg-zinc-100 dark:bg-zinc-800/60 dark:border-zinc-700"
+      ref={ref}
+      className={`relative flex items-center gap-4 px-6 py-4 rounded-2xl border border-zinc-200 bg-zinc-100 dark:bg-zinc-800/60 dark:border-zinc-700 ${isInView ? 'animate-fade-in-up' : 'opacity-0'}`}
       style={{ width: 660 }}
     >
       <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-zinc-800 !border-zinc-700" />
