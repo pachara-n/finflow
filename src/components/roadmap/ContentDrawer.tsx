@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRoadmapStore } from '@/store/useRoadmapStore';
@@ -11,7 +11,6 @@ import { Calculator, X, ChevronDown, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Optional components (will render if data.interactiveType matches)
 import { DCASimulator } from '@/components/interactive/DCASimulator';
 import { EmergencyFundCalculator } from '@/components/interactive/EmergencyFundCalculator';
 
@@ -26,20 +25,41 @@ export function ContentDrawer() {
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     if (isDrawerOpen && selectedNode?.data.contentFile) {
-      setIsLoading(true);
-      fetch(`/content/${selectedNode.data.contentFile}`)
-        .then((res) => {
+      const loadContent = async () => {
+        setIsLoading(true);
+
+        try {
+          const res = await fetch(`/content/${selectedNode.data.contentFile}`, {
+            signal: controller.signal,
+          });
+
           if (!res.ok) throw new Error('Failed to load');
-          return res.text();
-        })
-        .then((text) => setMarkdownContent(text))
-        .catch(() => setMarkdownContent('# ขออภัย\nเนื้อหาไฟล์นี้ไม่พร้อมใช้งาน (File not found or network error)'))
-        .finally(() => setIsLoading(false));
+
+          const text = await res.text();
+          setMarkdownContent(text);
+        } catch {
+          if (!controller.signal.aborted) {
+            setMarkdownContent('# ขออภัย\nเนื้อหาไฟล์นี้ไม่พร้อมใช้งาน (File not found or network error)');
+          }
+        } finally {
+          if (!controller.signal.aborted) {
+            setIsLoading(false);
+          }
+        }
+      };
+
+      void loadContent();
     } else {
       setMarkdownContent('');
       setIsStatusMenuOpen(false);
     }
+
+    return () => {
+      controller.abort();
+    };
   }, [isDrawerOpen, selectedNode]);
 
   if (!selectedNode) return null;
@@ -57,17 +77,14 @@ export function ContentDrawer() {
   return (
     <Sheet open={isDrawerOpen} onOpenChange={setDrawerOpen}>
       <SheetContent className="w-full sm:max-w-3xl overflow-y-auto outline-none border-l border-zinc-800 bg-zinc-950 p-0 sm:rounded-l-2xl shadow-2xl">
-        
-        {/* TOP BAR - Simplified Status Selector Only */}
         <div className="sticky top-0 z-20 w-full flex items-center justify-end px-6 py-4 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50 gap-3">
-          
           <div className="relative">
-            <button 
+            <button
               onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}
               className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-lg border transition-all text-xs font-bold leading-none ${
-                isCompleted 
-                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20' 
-                : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
+                isCompleted
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
+                  : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'
               }`}
             >
               <div className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-yellow-500'}`}></div>
@@ -77,14 +94,14 @@ export function ContentDrawer() {
 
             {isStatusMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in duration-200">
-                <button 
+                <button
                   onClick={() => updateStatus('unlocked')}
                   className="w-full flex items-center gap-3 px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100 transition-colors"
                 >
                   <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                   In Progress
                 </button>
-                <button 
+                <button
                   onClick={() => updateStatus('completed')}
                   className="w-full flex items-center gap-3 px-4 py-2 text-xs font-semibold text-zinc-400 hover:bg-zinc-800/50 hover:text-emerald-500 transition-colors"
                 >
@@ -94,8 +111,8 @@ export function ContentDrawer() {
               </div>
             )}
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setDrawerOpen(false)}
             className="p-2 hover:bg-zinc-900 rounded-lg text-zinc-600 hover:text-zinc-300 transition-all border border-transparent hover:border-zinc-800"
           >
@@ -103,7 +120,6 @@ export function ContentDrawer() {
           </button>
         </div>
 
-        {/* CONTENT AREA */}
         <div className="px-8 sm:px-14 py-10 pb-24">
           <header className="mb-14">
             <div className="flex items-center gap-2 mb-4">
@@ -111,15 +127,6 @@ export function ContentDrawer() {
                 Topic Guideline
               </Badge>
             </div>
-            
-            {/* <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-              {selectedNode.data.label}
-            </h1>
-            {selectedNode.data.description && (
-              <p className="mt-3 text-base text-zinc-500 max-w-2xl leading-relaxed">
-                {selectedNode.data.description}
-              </p>
-            )} */}
           </header>
 
           <main className="space-y-12">
@@ -129,7 +136,7 @@ export function ContentDrawer() {
                 <p className="text-[10px] uppercase tracking-[0.2em] font-black text-zinc-700">Loading Content</p>
               </div>
             ) : (
-              <div className="prose prose-zinc prose-invert max-w-none 
+              <div className="prose prose-zinc prose-invert max-w-none
                 prose-headings:text-white prose-headings:font-black prose-headings:tracking-tight
                 prose-h2:text-2xl prose-h2:mt-14 prose-h2:border-b prose-h2:border-zinc-900/50 prose-h2:pb-4
                 prose-p:text-zinc-400 prose-p:leading-relaxed prose-p:text-[16px]
@@ -143,7 +150,6 @@ export function ContentDrawer() {
               </div>
             )}
 
-            {/* INTERACTIVE TOOLS */}
             {interactiveType && !isLoading && (
               <div className="mt-16 bg-zinc-900/30 rounded-2xl border border-zinc-900 p-8">
                 <div className="flex items-center gap-3 mb-8">
@@ -155,7 +161,7 @@ export function ContentDrawer() {
                     <p className="text-xs text-zinc-500 italic lowercase">Simulator & Calculator</p>
                   </div>
                 </div>
-                
+
                 {interactiveType === 'EmergencyFundCalculator' && <EmergencyFundCalculator />}
                 {interactiveType === 'DCASimulator' && <DCASimulator />}
               </div>

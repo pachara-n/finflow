@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Progress } from "@/components/ui/progress";
 import { useRoadmapStore } from "@/store/useRoadmapStore";
+
+const subscribe = () => () => {};
 
 export function HeroSection() {
   useRoadmapStore((state) => state.nodes);
@@ -11,11 +13,7 @@ export function HeroSection() {
   const getCompletedCount = useRoadmapStore((state) => state.getCompletedCount);
   const getTotalCount = useRoadmapStore((state) => state.getTotalCount);
 
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   const progress = mounted ? getProgressPercentage() : 0;
   const completed = mounted ? getCompletedCount() : 0;

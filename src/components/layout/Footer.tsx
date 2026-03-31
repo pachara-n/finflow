@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 export function Footer() {
   return (
@@ -9,10 +9,10 @@ export function Footer() {
         </p>
         <div className="max-w-2xl mx-auto pt-6 border-t border-zinc-900/50">
           <p className="text-[12px] text-zinc-500/80 leading-relaxed font-medium">
-            Disclaimer: ข้อมูลและเนื้อหาทั้งหมดบนเว็บไซต์จัดทำขึ้นเพื่อการศึกษาพื้นฐานเท่านั้น ไม่ใช่การให้คำแนะนำเฉพาะเจาะจงทางการเงินหรือเชิญชวนให้ลงทุน 
+            Disclaimer: ข้อมูลและเนื้อหาทั้งหมดบนเว็บไซต์นี้จัดทำขึ้นเพื่อการศึกษาพื้นฐานเท่านั้น ไม่ใช่การให้คำแนะนำเฉพาะเจาะจงทางการเงินหรือการชักชวนให้ลงทุน
           </p>
           <p className="text-[12px] text-zinc-500/80 leading-relaxed font-bold mt-1">
-            "ผลการดำเนินงานทางการเงินในอดีต (Past Performance) ไม่ได้เป็นสิ่งยืนยันหรือรับประกันผลตอบแทนในอนาคต"
+            &ldquo;ผลการดำเนินงานทางการเงินในอดีต (Past Performance) ไม่ได้เป็นสิ่งยืนยันหรือรับประกันผลตอบแทนในอนาคต&rdquo;
           </p>
           <p className="text-[12px] text-zinc-500/80 leading-relaxed font-medium mt-1">
             การลงทุนมีความเสี่ยง ผู้ลงทุนควรศึกษาข้อมูลและประเมินความเสี่ยงด้วยตนเอง หรือปรึกษาผู้เชี่ยวชาญก่อนตัดสินใจลงทุนทุกครั้ง
