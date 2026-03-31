@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import {
   ReactFlow,
   useNodesState,
@@ -14,6 +14,8 @@ import { useRoadmapStore } from '@/store/useRoadmapStore';
 import { CustomNode } from './CustomNode';
 import { PhaseHeaderNode } from './PhaseHeaderNode';
 import type { RoadmapNode } from '@/types/roadmap';
+
+const subscribe = () => () => {};
 
 const nodeTypes = {
   custom: CustomNode,
@@ -55,7 +57,7 @@ function RoadmapFlow({ onReady }: { onReady: () => void }) {
   const [nodes, setNodes, onNodesChange] = useNodesState(storeNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(storeEdges);
 
-  useMemo(() => {
+  useEffect(() => {
     setNodes(storeNodes);
     setEdges(storeEdges);
   }, [storeNodes, storeEdges, setNodes, setEdges]);
@@ -99,12 +101,8 @@ function RoadmapFlow({ onReady }: { onReady: () => void }) {
 }
 
 export function RoadmapCanvas() {
-  const [mounted, setMounted] = useState(false);
   const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
 
   if (!mounted) {
     return <div className="w-full h-full bg-background" />;

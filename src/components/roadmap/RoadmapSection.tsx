@@ -1,25 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { RoadmapCanvas } from "./RoadmapCanvas";
 import { MobileRoadmap } from "./MobileRoadmap";
 
 const MOBILE_BREAKPOINT = 768; // px
 
+function subscribe(callback: () => void) {
+  window.addEventListener("resize", callback);
+  return () => window.removeEventListener("resize", callback);
+}
+
+function getSnapshot() {
+  return window.innerWidth < MOBILE_BREAKPOINT;
+}
+
 export function RoadmapSection() {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
-
-    checkMobile();
-    setMounted(true);
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  const mounted = useSyncExternalStore(subscribe, () => true, () => false);
+  const isMobile = useSyncExternalStore(subscribe, getSnapshot, () => false);
 
   if (!mounted) {
     return (
@@ -36,7 +34,7 @@ export function RoadmapSection() {
   }
 
   return (
-    <div id="roadmap-section" className="w-full h-[1300px]">
+    <div id="roadmap-section" className="w-full h-[1620px]">
       <RoadmapCanvas />
     </div>
   );
