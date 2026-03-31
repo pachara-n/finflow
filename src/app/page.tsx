@@ -1,6 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/layout/HeroSection";
-import { RoadmapCanvas } from "@/components/roadmap/RoadmapCanvas";
+import { RoadmapSection } from "@/components/roadmap/RoadmapSection";
 import { ContentDrawer } from "@/components/roadmap/ContentDrawer";
 import { ResourceSection } from "@/components/layout/ResourceSection";
 import { Footer } from "@/components/layout/Footer";
@@ -11,13 +11,7 @@ export default function Home() {
       <Header />
       <main className="flex flex-col flex-1">
         <HeroSection />
-        {/*
-          Give the canvas a fixed large height to fit the whole roadmap.
-          Reduced from 1800px to 1400px for a tighter, cleaner layout.
-        */}
-        <div id="roadmap-section" className="w-full h-[1400px]">
-          <RoadmapCanvas />
-        </div>
+        <RoadmapSection />
         <ResourceSection />
       </main>
       <Footer />
