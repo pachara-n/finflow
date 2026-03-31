@@ -1,16 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRoadmapStore } from '@/store/useRoadmapStore';
-import { Progress } from '@/components/ui/progress';
+import { useEffect, useState } from "react";
+import { useRoadmapStore } from "@/store/useRoadmapStore";
+import { Progress } from "@/components/ui/progress";
 
 export function HeroSection() {
+  // Subscribe to nodes to trigger re-renders on state change
+  const nodes = useRoadmapStore((state) => state.nodes);
+  
   const getProgressPercentage = useRoadmapStore((state) => state.getProgressPercentage);
   const getCompletedCount = useRoadmapStore((state) => state.getCompletedCount);
   const getTotalCount = useRoadmapStore((state) => state.getTotalCount);
 
   const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const progress = mounted ? getProgressPercentage() : 0;
   const completed = mounted ? getCompletedCount() : 0;
@@ -54,7 +59,7 @@ export function HeroSection() {
           </span>
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-sm border-2 border-dashed border-zinc-400 dark:border-zinc-600 inline-block"></span>
-            เส้นทางแนะนำ (เรียนตามลำดับได้)
+            เส้นทางแนะนำ 
           </span>
         </div>
       </div>
