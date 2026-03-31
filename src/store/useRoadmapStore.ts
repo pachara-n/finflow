@@ -195,10 +195,10 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "4-1",
     type: "custom",
-    position: { x: topicX(0, 2), y: topicY(4) },
+    position: { x: topicX(0, 3), y: topicY(4) },
     data: {
       label: "Side Hustles",
-      description: "หาเงินเพิ่มสำคัญกว่าซุ่มออม",
+      description: "หาเงินเพิ่มสำหรับออม",
       status: "unlocked",
       contentFile: "4-1-sidehustle.md",
     },
@@ -206,12 +206,23 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "4-2",
     type: "custom",
-    position: { x: topicX(1, 2), y: topicY(4) },
+    position: { x: topicX(1, 3), y: topicY(4) },
+    data: {
+      label: "Lifestyle Inflation",
+      description: "กับดักรายได้เพิ่ม",
+      status: "unlocked",
+      contentFile: "4-2-lifestyle-inflation.md",
+    },
+  },
+  {
+    id: "4-3",
+    type: "custom",
+    position: { x: topicX(2, 3), y: topicY(4) },
     data: {
       label: "ลงทุนในตัวเอง",
       description: "การลงทุนฉบับไร้ความเสี่ยง",
       status: "unlocked",
-      contentFile: "4-2-invest-in-yourself.md",
+      contentFile: "4-3-invest-in-yourself.md",
     },
   },
 ];
@@ -246,6 +257,7 @@ const initialEdges: Edge[] = [
   // Phase 4 flow
   { id: "eph-4_4-1", source: "ph-4", target: "4-1", type: "smoothstep" },
   { id: "e4-1_4-2", source: "4-1", target: "4-2", type: "smoothstep" },
+  { id: "e4-2_4-3", source: "4-2", target: "4-3", type: "smoothstep" },
 ];
 export const useRoadmapStore = create<RoadmapState>()(
   persist(
