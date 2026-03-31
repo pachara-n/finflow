@@ -4,13 +4,22 @@ import type { Edge } from "@xyflow/react";
 import type { RoadmapState, RoadmapNode } from "@/types/roadmap";
 
 const PH_X = 0;
-const NODE_X_OFFSET = -115; // (4 nodes * 230px / 2) is approx where we want to shift to center relative to PH_X=0
 const T_Y_OFFSET = 130;
 const PHASE_GAP = 320;
 
 const phaseY = (phase: number) => (phase - 1) * PHASE_GAP;
 const topicY = (phase: number) => phaseY(phase) + T_Y_OFFSET;
-const topicX = (col: number) => PH_X + NODE_X_OFFSET + (col * 230);
+
+// Dynamic centering relative to the Phase Header
+const topicX = (col: number, totalCols: number = 4) => {
+  const COL_W = 230; // 210 node + 20 gap
+  const PH_CENTER = 335; // The phase header spans approx 3 nodes (210*3+40 = 670px), so its center is at 335
+  
+  const totalNodesWidth = (totalCols * COL_W) - 20; // total width of the node group
+  const startX = PH_X + PH_CENTER - (totalNodesWidth / 2); // left-most X coordinate
+  
+  return startX + (col * COL_W);
+};
 
 // All nodes are unlocked from the start. Lock system removed.
 const initialNodes: RoadmapNode[] = [
@@ -28,7 +37,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "1-1",
     type: "custom",
-    position: { x: topicX(0), y: topicY(1) },
+    position: { x: topicX(0, 4), y: topicY(1) },
     data: {
       label: "ทำไมต้องลงทุน?",
       description: "เงินเฟ้อ & ดอกเบี้ยทบต้น",
@@ -39,7 +48,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "1-2",
     type: "custom",
-    position: { x: topicX(1), y: topicY(1) },
+    position: { x: topicX(1, 4), y: topicY(1) },
     data: {
       label: "จัดการสภาพคล่อง",
       description: "เช็คสุขภาพการเงินเบื้องต้น",
@@ -50,7 +59,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "1-3",
     type: "custom",
-    position: { x: topicX(2), y: topicY(1) },
+    position: { x: topicX(2, 4), y: topicY(1) },
     data: {
       label: "แนวคิด FIRE",
       description: "อิสรภาพทางการเงินทําอย่างไร?",
@@ -61,7 +70,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "1-4",
     type: "custom",
-    position: { x: topicX(3), y: topicY(1) },
+    position: { x: topicX(3, 4), y: topicY(1) },
     data: {
       label: "เงินสำรองฉุกเฉิน",
       description: "สามเหลี่ยมการเงินของแท้",
@@ -78,41 +87,51 @@ const initialNodes: RoadmapNode[] = [
     data: {
       label: "เฟสที่ 2 — ให้เงินทำงานแทนเรา",
       phaseNumber: 2,
-      description: "เรียนรู้เครื่องมือการลงทุนที่จะสร้าง Passive Income",
+      description: "เข้าใจหัวใจของการลงทุนและเริ่มปั้นพอร์ตง่ายๆ",
     },
   },
   {
     id: "2-1",
     type: "custom",
-    position: { x: topicX(0), y: topicY(2) },
+    position: { x: topicX(0, 4), y: topicY(2) },
     data: {
-      label: "ความลับดอกเบี้ยทบต้น",
-      description: "ทำไมต้องรีบลงทุน?",
+      label: "หุ้นคืออะไร?",
+      description: "เปลี่ยนมุมมองผู้เล่น",
       status: "unlocked",
-      contentFile: "2-1-compound.md",
+      contentFile: "2-1-what-is-stock.md",
     },
   },
   {
     id: "2-2",
     type: "custom",
-    position: { x: topicX(1), y: topicY(2) },
+    position: { x: topicX(1, 4), y: topicY(2) },
     data: {
-      label: "กองทุนรวม & ETF",
-      description: "ทางลัดของมือใหม่",
+      label: "ผลตอบแทนมาจากไหน?",
+      description: "ปันผล vs ส่วนต่าง",
       status: "unlocked",
-      contentFile: "2-2-etf.md",
+      contentFile: "2-2-returns.md",
     },
   },
   {
     id: "2-3",
     type: "custom",
-    position: { x: topicX(2), y: topicY(2) },
+    position: { x: topicX(2, 4), y: topicY(2) },
     data: {
-      label: "DCA",
-      description: "ลงทุนแบบคนขี้เกียจแต่รวย",
+      label: "Index Fund",
+      description: "ทางลัดของคนขี้เกียจ",
       status: "unlocked",
-      contentFile: "2-3-dca.md",
-      interactiveType: "DCASimulator",
+      contentFile: "2-3-index-fund.md",
+    },
+  },
+  {
+    id: "2-4",
+    type: "custom",
+    position: { x: topicX(3, 4), y: topicY(2) },
+    data: {
+      label: "พลังดอกเบี้ยทบต้น",
+      description: "เวลาและวินัย",
+      status: "unlocked",
+      contentFile: "2-4-compound.md",
     },
   },
 
@@ -122,42 +141,43 @@ const initialNodes: RoadmapNode[] = [
     selectable: false,
     position: { x: PH_X, y: phaseY(3) },
     data: {
-      label: "เฟสที่ 3 — อัปเลเวลนักลงทุน",
+      label: "เฟสที่ 3 — เลือกลงทุนในแบบที่ใช่",
       phaseNumber: 3,
-      description: "ขยับมาลงทุนด้วยตัวเองในสินทรัพย์แห่งโลกอนาคต",
+      description: "หากลยุทธ์ที่เหมาะกับไลฟ์สไตล์ตัวเอง",
     },
   },
   {
     id: "3-1",
     type: "custom",
-    position: { x: topicX(0), y: topicY(3) },
+    position: { x: topicX(0, 3), y: topicY(3) },
     data: {
-      label: "หุ้นเติบโต vs ปันผล",
-      description: "เลือกแบบไหนดี?",
+      label: "สาย DCA ชนะตลาดยังไง?",
+      description: "เทรด vs สม่าเสมอ",
       status: "unlocked",
-      contentFile: "3-1-stocks.md",
+      contentFile: "3-1-dca.md",
+      interactiveType: "DCASimulator",
     },
   },
   {
     id: "3-2",
     type: "custom",
-    position: { x: topicX(1), y: topicY(3) },
+    position: { x: topicX(1, 3), y: topicY(3) },
     data: {
-      label: "Crypto 101",
-      description: "ลงทุนคริปโทฯ แบบไม่กาว",
+      label: "หุ้นเติบโต vs ปันผล",
+      description: "เลือกแบบไหนดี?",
       status: "unlocked",
-      contentFile: "3-2-crypto.md",
+      contentFile: "3-2-growth-vs-dividend.md",
     },
   },
   {
     id: "3-3",
     type: "custom",
-    position: { x: topicX(2), y: topicY(3) },
+    position: { x: topicX(2, 3), y: topicY(3) },
     data: {
-      label: "Asset Allocation",
-      description: "จัดพอร์ตไม่ให้แตก",
+      label: "Common-Sense Investing",
+      description: "ลงทุนด้วยสามัญสำนึก",
       status: "unlocked",
-      contentFile: "3-3-allocation.md",
+      contentFile: "3-3-common-sense.md",
     },
   },
 
@@ -175,7 +195,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "4-1",
     type: "custom",
-    position: { x: topicX(1), y: topicY(4) },
+    position: { x: topicX(0, 2), y: topicY(4) },
     data: {
       label: "Side Hustles",
       description: "หาเงินเพิ่มสำคัญกว่าซุ่มออม",
@@ -186,7 +206,7 @@ const initialNodes: RoadmapNode[] = [
   {
     id: "4-2",
     type: "custom",
-    position: { x: topicX(2), y: topicY(4) },
+    position: { x: topicX(1, 2), y: topicY(4) },
     data: {
       label: "ลงทุนในตัวเอง",
       description: "การลงทุนฉบับไร้ความเสี่ยง",
@@ -197,16 +217,34 @@ const initialNodes: RoadmapNode[] = [
 ];
 
 const initialEdges: Edge[] = [
+  // Phase 1 flow
+  { id: "eph-1_1-1", source: "ph-1", target: "1-1", type: "smoothstep" },
   { id: "e1-1_1-2", source: "1-1", target: "1-2", type: "smoothstep" },
   { id: "e1-2_1-3", source: "1-2", target: "1-3", type: "smoothstep" },
   { id: "e1-3_1-4", source: "1-3", target: "1-4", type: "smoothstep" },
-  { id: "e1-4_2-1", source: "1-4", target: "2-1", type: "smoothstep" },
+  
+  // Connect Phase 1 end to Phase 2 Header
+  { id: "e1-4_ph-2", source: "1-4", target: "ph-2", type: "smoothstep" },
+  
+  // Phase 2 flow
+  { id: "eph-2_2-1", source: "ph-2", target: "2-1", type: "smoothstep" },
   { id: "e2-1_2-2", source: "2-1", target: "2-2", type: "smoothstep" },
   { id: "e2-2_2-3", source: "2-2", target: "2-3", type: "smoothstep" },
-  { id: "e2-3_3-1", source: "2-3", target: "3-1", type: "smoothstep" },
+  { id: "e2-3_2-4", source: "2-3", target: "2-4", type: "smoothstep" },
+  
+  // Connect Phase 2 end to Phase 3 Header
+  { id: "e2-4_ph-3", source: "2-4", target: "ph-3", type: "smoothstep" },
+  
+  // Phase 3 flow
+  { id: "eph-3_3-1", source: "ph-3", target: "3-1", type: "smoothstep" },
   { id: "e3-1_3-2", source: "3-1", target: "3-2", type: "smoothstep" },
   { id: "e3-2_3-3", source: "3-2", target: "3-3", type: "smoothstep" },
-  { id: "e3-3_4-1", source: "3-3", target: "4-1", type: "smoothstep" },
+  
+  // Connect Phase 3 end to Phase 4 Header
+  { id: "e3-3_ph-4", source: "3-3", target: "ph-4", type: "smoothstep" },
+  
+  // Phase 4 flow
+  { id: "eph-4_4-1", source: "ph-4", target: "4-1", type: "smoothstep" },
   { id: "e4-1_4-2", source: "4-1", target: "4-2", type: "smoothstep" },
 ];
 export const useRoadmapStore = create<RoadmapState>()(

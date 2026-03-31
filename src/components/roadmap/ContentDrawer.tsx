@@ -112,9 +112,9 @@ export function ContentDrawer() {
               </Badge>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+            {/* <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-white leading-tight">
               {selectedNode.data.label}
-            </h1>
+            </h1> */}
           </header>
 
           <main className="space-y-12">

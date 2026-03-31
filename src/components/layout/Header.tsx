@@ -1,6 +1,10 @@
 'use client';
 
 export function Header() {
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-zinc-800/50">
       <div className="max-w-5xl mx-auto flex h-14 items-center px-6">
@@ -11,6 +15,22 @@ export function Header() {
           </div>
           <span className="font-bold text-base text-zinc-100">FinFlow</span>
         </div>
+
+        {/* Center: Nav Links */}
+        <nav className="hidden sm:flex items-center gap-1 ml-8">
+          <button
+            onClick={() => scrollTo('roadmap-section')}
+            className="px-3 py-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-800/50 transition-all"
+          >
+            Roadmap
+          </button>
+          <button
+            onClick={() => scrollTo('resources-section')}
+            className="px-3 py-1.5 text-[13px] font-medium text-zinc-500 hover:text-zinc-200 rounded-lg hover:bg-zinc-800/50 transition-all"
+          >
+            Resources
+          </button>
+        </nav>
 
         {/* Right Side: GitHub */}
         <div className="ml-auto flex items-center gap-4">
