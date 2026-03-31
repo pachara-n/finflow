@@ -1,6 +1,7 @@
 'use client';
 
 import { ExternalLink, Play } from 'lucide-react';
+import { useInView } from '@/hooks/useInView';
 
 interface Channel {
   name: string;
@@ -22,11 +23,14 @@ const channels: Channel[] = [
 ];
 
 export function ResourceSection() {
+  const { ref: headerRef, isInView: headerInView } = useInView();
+  const { ref: listRef, isInView: listInView } = useInView();
+
   return (
     <section id="resources-section" className="w-full bg-zinc-900/40 border-t border-zinc-800/50 pt-24 pb-20 px-6">
       <div className="max-w-5xl mx-auto">
         {/* Section Header */}
-        <div className="mb-16">
+        <div ref={headerRef} className={`mb-16 transition-all ${headerInView ? 'animate-fade-in-up opacity-100' : 'opacity-0'}`}>
           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-red-400/80 mb-3">
             Curated by Experience
           </p>
@@ -39,7 +43,7 @@ export function ResourceSection() {
         </div>
 
         {/* Channel List */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div ref={listRef} className={`grid grid-cols-1 sm:grid-cols-2 gap-3 transition-all ${listInView ? 'animate-fade-in-up opacity-100' : 'opacity-0'}`}>
           {channels.map((ch, i) => (
             <a
               key={ch.name}
